@@ -1,0 +1,115 @@
+## grammar ##
+-- function declaration --
+fn fnName(par1: type, par2: type) returnType;
+
+-- function definition --
+fn fnName(par1: type, par2: type) returnType { <function_body> }
+
+-- variable declaration --
+const foo: type;
+mut bar: type;
+
+-- variable definition --
+const foo = value;
+mut bar = value;
+
+-- struct definition --
+struct StructName {
+	field1: Type,
+	field2: type,
+	field3: type,
+	field4: type,
+}
+
+-- struct field access --
+someStruct.fieldName
+
+-- arrays --
+mut arr: [length]type;
+
+-- enums --
+enum EnumName {
+	first,
+	second,
+	third,
+}
+
+-- unions --
+union UnionName {
+	name1: type1,
+	name2 type2,
+}
+
+-- if --
+if (condition) <one_liner>;
+if (condition) {} else if (anotherCondition) {} else {}
+
+-- loops -- // only forloop needed
+for (mut var: type; condition; <do_at_the_end>) <one_liner>;
+for (mut var: type; condition; <do_at_the_end>) {};
+
+@done
+-- string literals --
+"some string literal"
+
+@done
+-- multiline string literals -- // multiple string literals seperated by whitespace will just be concatinated
+"some\n"
+"multiline\n"
+"string\n"
+"literal\n"
+
+@done
+-- number literals --
+12345 // decimal
+0.123 // float
+0x123 // hex
+0o123 // octal
+0b010 // binary
+
+## operators ##
+@done
+-- piping -- // piped value should be of first parameter type
+foo() -> bar() -> baz();
+
++ -- addition --	   @done
+- -- subtraction --    @done
+* -- multiplication -- @done
+/ -- division --	   @done
+% -- modulo --		   @done
+
++= @done
+-= @done
+*= @done
+/= @done
+%= @done
+
+>  -- greater than --        @done
+>= -- greater than equals -- @done
+<  -- less than --           @done
+<= -- less than equals --    @done
+== -- equals --				 @done
+!= -- not equals --			 @done
+&& -- logical and --		 @done
+|| -- logical or --			 @done
+!  -- logical not --		 @done
+^^ -- logical xor --		 @done
+
+&  -- bitwise and --		 @done
+|  -- bitwise or --			 @done
+~  -- bitwise not  --		 @done
+^  -- bitwise xor --		 @done
+<< -- bitshift left --		 @done
+>> -- bitshift right --		 @done
+
+## keywords ##
+const
+mut 
+fn
+struct
+enum
+union
+return
+for
+if
+else
