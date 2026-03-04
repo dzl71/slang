@@ -72,22 +72,42 @@ void test(char *name, char *str, TokenTag *expected) {
 	size_t idx = 0;
 	for (; expected[idx] != eof; ++idx) {
 		if (arr[idx].tag != expected[idx]) {
-			printf("%s failed idx:%lu expected:%s got:%s\n", name, idx, tagNames[expected[idx]], tagNames[arr[idx].tag]);
 			size_t start = arr[idx].start;
 			size_t end = arr[idx].end;
-			printf("%.*s\n", end-start, str+start);
-			printf("%s\n", tagNames[keywordIdentify(start, end, str+start)]);
+			printf("%.*s`\n", end - start, str + start);
+			printf("%s\n", tagNames[arr[idx].tag]);
+			printf("!!!! %s failed idx:%lu expected:%s got:%s\n", name, idx, tagNames[expected[idx]], tagNames[arr[idx].tag]);
 			ArrayList_free(arr);
 			return;
 		}
 	}
-	printf("%s succeded\n", name);
+	printf("==== %s succeded\n", name);
 	ArrayList_free(arr);
 }
 
 int main() {
+	test("keywords",
+		"fn if mut for else return const enum union else struct",
+		EXPECTED_TAGS(
+			keyword_fn,
+			keyword_if,
+			keyword_mut,
+			keyword_for,
+			keyword_else,
+			keyword_return,
+			keyword_const,
+			keyword_enum,
+			keyword_union,
+			keyword_else,
+			keyword_struct,
+			eof,
+		)
+	);
+
 	test("empty file", "", EXPECTED_TAGS(eof));
+
 	test("identifier", "hello world12", EXPECTED_TAGS(identifier, identifier, eof));
+
 	test("numliteral", "-1 123 0.1 000 0x1a 0o3 0b0", EXPECTED_TAGS(
 		numliteral,
 		numliteral,
@@ -98,6 +118,7 @@ int main() {
 		numliteral,
 		eof
 	));
+
 	test("symbols", ";:,.(){}[]=*", EXPECTED_TAGS(
 		semicolon,
 		colon,
@@ -111,6 +132,7 @@ int main() {
 		right_bracket,
 		assign,
 		asterix,
+		eof
 	));
 
 	test("function declaration",
