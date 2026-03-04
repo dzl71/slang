@@ -1,0 +1,5 @@
+#!/bin/bash
+
+gcc test/tokenizer.c src/tokenizer.c -o tokenizerTest 
+./tokenizerTest
+rm tokenizerTest
