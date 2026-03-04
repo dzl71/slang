@@ -1,18 +1,49 @@
+#include <string.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "../misc/ArrayList.h"
+#include "../misc/HashMap.h"
 #include "tokenizer.h"
 
-void tokenizerInit(TokenizerState *state, char *tokenizedData) {
+void tokenizer_init(TokenizerState *state, char *tokenizedData) {
 	state->idx = 0;
 	state->buffer = tokenizedData;
+}
+
+TokenTag keywordIdentify(char *keyword, size_t len) {
+	switch (hash(keyword, len)) {
+		case -1108668895:
+			return keyword_if;
+		case -1109815566:
+			return keyword_fn;
+		case 279730432:
+			return keyword_mut;
+		case 577479304:
+			return keyword_for;
+		case -861930528:
+			return keyword_enum;
+		case 739881296:
+			return keyword_else;
+		case -776288134:
+			return keyword_union;
+		case 2083172026:
+			return keyword_const;
+		case 1535229688:
+			return keyword_struct;
+		case -222620452:
+			return keyword_return;
+		default:
+			return identifier;
+	}
 }
 
 // TODO: refactor the function
 /// returns the next token;
 /// if the tokenizer reached the end, returns eof token;
-Token TokenizerNext(TokenizerState *state) {
+Token tokenizer_next(TokenizerState *state) {
 	Token token = {
 		.tag = invalid,
-		.start = state->idx
 	};
 
 	// using goto labels to increase cache hits (inspired by zig source code)
@@ -27,95 +58,113 @@ Token TokenizerNext(TokenizerState *state) {
 			
 		// the ... syntax is gcc and clnag specific
 		case 'A'...'Z': case 'a'...'z': case '_':
-			token.tag = identifier;
+			token.start = state->idx;
 			goto IDENTIFIER;
 			break;
 
 		// multiline and regular strings
 		case '"':
+			token.start = state->idx;
 			token.tag = stringliteral;
 			goto STRINGLITERAL;
 			break;
 
 		case '1'...'9':
-			token.tag = numberliteral;
+			token.start = state->idx;
+			token.tag = numliteral;
 			goto INTLITERAL;
 			break;
 	// onetime states
 		// end of tokenized data
 		case 0:
-			token.tag = eof;
+			token.start = state->idx;
 			token.end = ++(state->idx); // should test thourully, can contain off by 1 error
+			token.tag = eof;
 			goto END;
 			break;
 
 		case '.':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = period;
 			goto END;
 			break;
 
 		case ',':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = comma;
 			goto END;
 			break;
 
 		case ':':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = colon;
 			goto END;
 			break;
 
 		case ';':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = semicolon;
 			goto END;
 			break;
 
 		case '(':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = left_brace;
 			goto END;
 			break;
 
 		case ')':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = right_brace;
 			goto END;
 			break;
 
 		case '[':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = left_bracket;
 			goto END;
 			break;
 
 		case ']':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = right_bracket;
 			goto END;
 			break;
 
 		case '{':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = left_curly;
 			goto END;
 			break;
 
 		case '}':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = right_curly;
 			goto END;
 			break;
 
 		case '~':
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = bit_not;
 			goto END;
 			break;
 	// can be one can be multiple
-		case '0': goto ZERO; break;
+		case '0':
+			token.start = state->idx;
+			token.tag = numliteral;
+			goto ZERO;
+			break;
 		case '-': goto MINUS; break;
 		case '+': goto PLUS; break;
 		case '*': goto ASTERIX; break;
@@ -130,6 +179,7 @@ Token TokenizerNext(TokenizerState *state) {
 		case '^': goto XOR; break;
 
 		default: // encountered invalid character
+			token.start = state->idx;
 			token.end = ++(state->idx);
 			token.tag = invalid;
 			goto END;
@@ -150,10 +200,11 @@ Token TokenizerNext(TokenizerState *state) {
 			goto END;
 			break;
 		case '0':
-			token.tag = numberliteral;
+			token.tag = numliteral;
 			goto ZERO;
 			break;
 		case '1'...'9':
+			token.tag = numliteral;
 			goto INTLITERAL;
 			break;
 		default:
@@ -203,7 +254,7 @@ Token TokenizerNext(TokenizerState *state) {
 			break;
 		default:
 			token.end = state->idx;
-			token.tag = div;
+			token.tag = div_op;
 			goto END;
 			break;
 	}
@@ -437,6 +488,7 @@ Token TokenizerNext(TokenizerState *state) {
 			break;
 		default:
 			token.end = state->idx;
+			token.tag = keywordIdentify(state->buffer + token.start, token.end - token.start);
 			goto END;
 			break;
 	}
@@ -463,3 +515,18 @@ Token TokenizerNext(TokenizerState *state) {
 	END:
 	return token;
 }
+
+TokenArrayList tokenizer_tokenize(char *tokenizedData) {
+	TokenizerState state;
+	tokenizer_init(&state, tokenizedData);
+	TokenArrayList arr = NULL;
+	
+	Token token;
+	do { // makes so the eof token is added into the arraylist
+		token = tokenizer_next(&state);
+		ArrayList_push(arr, token);
+	} while (token.tag != eof);
+	
+	return arr;
+}
+

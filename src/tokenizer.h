@@ -84,7 +84,7 @@ void tokenizer_init(TokenizerState *state, char *tokenizedData);
 /// if the tokenizer reached the end, returns eof token;
 Token tokenizer_next(TokenizerState *state);
 
-TokenTag keywordIdentify(size_t start, size_t end, char *buffer);
+TokenTag keywordIdentify(char *keyword, size_t len);
 
 TokenArrayList tokenizer_tokenize(char *tokenizedData);
 
