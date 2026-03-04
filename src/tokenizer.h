@@ -8,13 +8,12 @@ typedef struct TokenizerState {
 	char *buffer;
 } TokenizerState;
 
-
 typedef enum TokenTag {
 	eof,
 	invalid,
 	identifier,
 	stringliteral,
-	numberliteral,
+	numliteral,
 	// keywords:
 	keyword_const,
 	keyword_mut,
@@ -34,7 +33,7 @@ typedef enum TokenTag {
 	plus,
 	plus_equal,
 	mul_equal,
-	div,
+	div_op,
 	div_equal,
 	mod,
 	mod_equal,
@@ -77,10 +76,16 @@ typedef struct Token {
 	size_t end;
 } Token;
 
-void tokenizerInit(TokenizerState *state, char *tokenizedData);
+typedef Token* TokenArrayList;
+
+void tokenizer_init(TokenizerState *state, char *tokenizedData);
 
 /// returns the next token;
 /// if the tokenizer reached the end, returns eof token;
-Token TokenizerNext(TokenizerState *state);
+Token tokenizer_next(TokenizerState *state);
+
+TokenTag keywordIdentify(size_t start, size_t end, char *buffer);
+
+TokenArrayList tokenizer_tokenize(char *tokenizedData);
 
 #endif //TOKENIZER_H
