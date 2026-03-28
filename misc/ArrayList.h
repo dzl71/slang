@@ -19,7 +19,7 @@ typedef struct ArrayListHeader {
 		+ sizeof(*(arr))														\
 		* ArrayListInitCap														\
 	);																			\
-	if (header) { /* TODO: handle alloc failure */								\
+	if (header) { 																\
 		header->cap = ArrayListInitCap;											\
 		header->len = 0;														\
 		(arr) = (void*)(header + 1);											\
@@ -27,7 +27,7 @@ typedef struct ArrayListHeader {
 }
 
 #define ArrayList_push(arr, val) {												\
-	/* TODO: add arr != NULL check */											\
+	/* TODO?: add arr != NULL check */											\
 	ArrayListHeader *header = (ArrayListHeader*)(arr) - 1;						\
 	if (header->len == header->cap) {											\
 		ArrayListHeader *newHeader = realloc(									\
