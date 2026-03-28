@@ -13,25 +13,25 @@ void tokenizer_init(TokenizerState *state, char *tokenizedData) {
 
 TokenTag keywordIdentify(char *keyword, size_t len) {
 	switch (hash(keyword, len)) {
-		case -1108668895:
+		case -1108668895: // "if" hash
 			return keyword_if;
-		case -1109815566:
+		case -1109815566: // "fn" hash
 			return keyword_fn;
-		case 279730432:
+		case 279730432: // "mut" hash
 			return keyword_mut;
-		case 577479304:
+		case 577479304: // "for" hash
 			return keyword_for;
-		case -861930528:
+		case -861930528: // "enum" hash
 			return keyword_enum;
-		case 739881296:
+		case 739881296: // "else" hash
 			return keyword_else;
-		case -776288134:
+		case -776288134: // "union" hash
 			return keyword_union;
-		case 2083172026:
+		case 2083172026: // "const" hash
 			return keyword_const;
-		case 1535229688:
+		case 1535229688: // "struct" hash
 			return keyword_struct;
-		case -222620452:
+		case -222620452: // "return" hash
 			return keyword_return;
 		default:
 			return identifier;
@@ -521,7 +521,7 @@ TokenArrayList tokenizer_tokenize(char *tokenizedData) {
 	tokenizer_init(&state, tokenizedData);
 	TokenArrayList arr = NULL;
 	ArrayList_init(arr);
-	if (!arr); // handle init error
+	if (!arr); // handle init failure
 
 	Token token;
 	do { // makes so the eof token is added into the arraylist
