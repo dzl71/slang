@@ -19,7 +19,7 @@ typedef struct ArrayListHeader {
 		+ sizeof(*(arr))														\
 		* ArrayListInitCap														\
 	);																			\
-	if (!header) { /* TODO: handle alloc failure */								\
+	if (header) { /* TODO: handle alloc failure */								\
 		header->cap = ArrayListInitCap;											\
 		header->len = 0;														\
 		(arr) = (void*)(header + 1);											\
@@ -27,18 +27,21 @@ typedef struct ArrayListHeader {
 }
 
 #define ArrayList_push(arr, val) {												\
+	/* TODO: add arr != NULL check */											\
 	ArrayListHeader *header = (ArrayListHeader*)(arr) - 1;						\
 	if (header->len == header->cap) {											\
-		header = realloc(														\
+		ArrayListHeader *newHeader = realloc(									\
 			header,																\
 			sizeof(ArrayListHeader)												\
 			+ header->cap														\
 			* sizeof(*(arr))													\
 			* ArrayListGrowth													\
 		);																		\
-		if (!header); /* TODO: handle realloc failure */						\
-		header->cap *= ArrayListGrowth;											\
-		(arr) = (void*)(header + 1);											\
+		if (newHeader) {														\
+			header = newHeader;													\
+			header->cap *= ArrayListGrowth;										\
+			(arr) = (void*)(header + 1);										\
+		}																		\
 	}																			\
 	(arr)[header->len++] = (val);												\
 }
@@ -47,42 +50,46 @@ typedef struct ArrayListHeader {
 
 #define ArrayList_len(arr) ((ArrayListHeader*)(arr) - 1)->len
 
-/* some experiment
-#define ArrayList(type, prefix)													\
-\
-typedef type * prefix##ArrayList;												\
-\
-void *prefix##ArrayList_init() {												\
-	ArrayListHeader *header = (ArrayListHeader *)malloc(						\
-		sizeof(ArrayListHeader)													\
-		+ sizeof(type)															\
-		* ArrayListInitCap														\
-	);																			\
-	if (!header) return NULL;													\
-	header->cap = ArrayListInitCap;												\
-	header->len = 0;															\
-	return (void*)(header + 1);													\
-}																				\
-\
-void *prefix##ArrayList_push(type *arr, type val) {								\
-	if (!arr) arr = ArrayList_init();											\
-	ArrayListHeader *header = (ArrayListHeader*)(arr) - 1;						\
-	if (header->len == header->cap) {											\
-		ArrayListHeader *reallocHeader = realloc(								\
-			header,																\
-			sizeof(ArrayListHeader)												\
-			+ header->cap														\
-			* sizeof(*(arr))													\
-			* ArrayListGrowth													\
-		);																		\
-		if (!reallocHeader) return NULL;										\
-		header = reallocHeader;													\
-		header->cap *= ArrayListGrowth;											\
-		(arr) = (void*)(header + 1);											\
-	}																			\
-	(arr)[header->len++] = (val);												\
-	return header;																\
-}
+/*
+**************************
+*  some experimentation  *
+**************************
 */
+
+// #define ArrayList(Type, prefix)													\
+// \
+// /* typedef type * prefix##ArrayList; */											\
+// \
+// void *prefix##ArrayList_init() {												\
+// 	ArrayListHeader *header = (ArrayListHeader *)malloc(						\
+// 		sizeof(ArrayListHeader)													\
+// 		+ sizeof(Type)															\
+// 		* ArrayListInitCap														\
+// 	);																			\
+// 	if (!header) return NULL;													\
+// 	header->cap = ArrayListInitCap;												\
+// 	header->len = 0;															\
+// 	return (void*)(header + 1);													\
+// }																				\
+// \
+// void *prefix##ArrayList_push(Type *arr, Type val) {								\
+// 	if (!arr) return NULL;														\
+// 	ArrayListHeader *header = (ArrayListHeader*)(arr) - 1;						\
+// 	if (header->len == header->cap) {											\
+// 		ArrayListHeader *newHeader = realloc(									\
+// 			header,																\
+// 			sizeof(ArrayListHeader)												\
+// 			+ header->cap														\
+// 			* sizeof(Type)														\
+// 			* ArrayListGrowth													\
+// 		);																		\
+// 		if (!newHeader) return NULL;											\
+// 		header = newHeader;														\
+// 		header->cap *= ArrayListGrowth;											\
+// 		(arr) = (void*)(header + 1);											\
+// 	}																			\
+// 	(arr)[header->len++] = (val);												\
+// 	return arr;																	\
+// }
 
 #endif // ARRAYLIST_H
