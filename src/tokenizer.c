@@ -520,13 +520,18 @@ TokenArrayList tokenizer_tokenize(char *tokenizedData) {
 	TokenizerState state;
 	tokenizer_init(&state, tokenizedData);
 	TokenArrayList arr = NULL;
-	
+	ArrayList_init(arr);
+	if (!arr); // handle init error
+
 	Token token;
 	do { // makes so the eof token is added into the arraylist
 		token = tokenizer_next(&state);
+		size_t prevLen = ArrayList_len(arr);
 		ArrayList_push(arr, token);
+		if (prevLen == ArrayList_len(arr)); // TODO: handle ralloc failure
+
 	} while (token.tag != eof);
-	
+
 	return arr;
 }
 
